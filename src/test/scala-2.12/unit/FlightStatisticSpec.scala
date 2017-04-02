@@ -124,13 +124,17 @@ class FlightStatisticSpec extends Specification{
 
           //then
           stat.size must_== 2
-          stat(1).size must_== 2
+          stat(1).size must_== 4
           stat(1) must contain(("KBP", 1))
           stat(1) must contain(("CDG", 0))
+          stat(1) must contain(("ROW", 0))
+          stat(1) must contain(("PLN", 0))
 
-          stat(2).size must_== 2
+          stat(2).size must_== 4
           stat(2) must contain(("ROW", 1))
           stat(2) must contain(("PLN", 0))
+          stat(2) must contain(("KBP", 0))
+          stat(2) must contain(("CDG", 0))
       }
 
       "does not fail when log is empty" in new PeriodTestContext {

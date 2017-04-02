@@ -5,6 +5,7 @@ import java.time.LocalDate
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{Buffer, ListBuffer}
 
+
 /**
   * Created by kkolesnikov on 3/30/2017.
   */
@@ -68,8 +69,11 @@ class FlightLogs {
       *   @return Map of (airport, calculated statistics)
       */
     def getStatisticsByAirport(statistic: (Seq[Flight]) => (Int), filterZeros: Boolean): Map[String, Int] = {
-      val results: Map[String, Int] = flights.groupBy(_.getOriginAirport).mapValues(flights => statistic(flights))
-      if(filterZeros) results.filterNot(_._2 == 0) else results
+      val noRaces: Map[String,Int] = flightLog.groupBy(_.getOriginAirport).mapValues(_ => 0)
+      val results: Map[String, Int] = flights.groupBy(_.getOriginAirport)
+          .mapValues(flights => statistic(flights))
+      val includingNoRaces = results ++ (noRaces -- results.keySet)
+      if(filterZeros) includingNoRaces.filterNot(_._2 == 0) else includingNoRaces
     }
 
 
@@ -79,7 +83,8 @@ class FlightLogs {
       *   @return Map of period (like year or week) -> Map(airport, statistic)
       */
     def getStatisticsByPeriod(period: (LocalDate) => Int, statistic: (Seq[Flight]) => (Int)): Map[Int, Map[String, Int]] = {
-      flights.groupBy(flight => period(flight.getFlightDate)).mapValues(_.getStatisticsByAirport(statistic, filterZeros = false))
+      flights.groupBy(flight => period(flight.getFlightDate))
+        .mapValues(_.getStatisticsByAirport(statistic, filterZeros = false))
     }
   }
 }
